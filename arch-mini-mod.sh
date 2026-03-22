@@ -125,7 +125,8 @@ install_selected_window_managers() {
         return 0
     fi
 
-    while IFS= read -r wm_choice; do
+    mapfile -t _wm_arr <<< "$wm_choices"
+    for wm_choice in "${_wm_arr[@]}"; do
         case $wm_choice in
             "Install Hyprland")
                 run_wm_install_script "Hyprland" "hyprland-install.sh"
@@ -142,7 +143,7 @@ install_selected_window_managers() {
             "Back")
                 ;;
         esac
-    done <<< "$wm_choices"
+    done
 }
 
 prompt_install_window_managers_after_install() {
