@@ -83,12 +83,22 @@ function msg_box() {
 function menu() {
     gum choose \
         "Install Arch Mini Mod" \
+        "Install Window Managers" \
         "Install Nvidia Drivers" \
         "Apply KooTigers Touchscreen Driver" \
         "Apply NuVision 8in Tablet Fixes" \
         "Apply Microsoft Surface Kernel" \
         "Reboot System" \
         "Exit"
+}
+
+function window_manager_menu() {
+    gum choose \
+        "Install Hyprland" \
+        "Install Sway" \
+        "Install i3" \
+        "Install bspwm" \
+        "Back"
 }
 # Main menu loop
 while true; do
@@ -131,6 +141,45 @@ while true; do
             echo -e "${GREEN}PiercingXX Gnome Customizations Applied successfully!${NC}"
             msg_box "System will reboot now."
             sudo reboot
+            ;;
+        "Install Window Managers")
+            wm_choice=$(window_manager_menu)
+            case $wm_choice in
+                "Install Hyprland")
+                    echo -e "${YELLOW}Installing Hyprland & Dependencies...${NC}"
+                    cd scripts || exit
+                    chmod u+x hyprland-install.sh
+                    ./hyprland-install.sh
+                    cd "$builddir" || exit
+                    echo -e "${GREEN}Hyprland Installed successfully!${NC}"
+                    ;;
+                "Install Sway")
+                    echo -e "${YELLOW}Installing Sway & Dependencies...${NC}"
+                    cd scripts || exit
+                    chmod u+x sway-install.sh
+                    ./sway-install.sh
+                    cd "$builddir" || exit
+                    echo -e "${GREEN}Sway Installed successfully!${NC}"
+                    ;;
+                "Install i3")
+                    echo -e "${YELLOW}Installing i3 & Dependencies...${NC}"
+                    cd scripts || exit
+                    chmod u+x i3-install.sh
+                    ./i3-install.sh
+                    cd "$builddir" || exit
+                    echo -e "${GREEN}i3 Installed successfully!${NC}"
+                    ;;
+                "Install bspwm")
+                    echo -e "${YELLOW}Installing bspwm & Dependencies...${NC}"
+                    cd scripts || exit
+                    chmod u+x bspwm-install.sh
+                    ./bspwm-install.sh
+                    cd "$builddir" || exit
+                    echo -e "${GREEN}bspwm Installed successfully!${NC}"
+                    ;;
+                "Back")
+                    ;;
+            esac
             ;;
         "Install Nvidia Drivers")
             echo -e "${YELLOW}Installing Nvidia Drivers...${NC}"
