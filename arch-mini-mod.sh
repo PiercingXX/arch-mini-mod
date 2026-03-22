@@ -115,35 +115,26 @@ run_wm_install_script() {
 }
 
 install_selected_window_managers() {
-    local wm_choices
     local wm_choice
 
-    wm_choices=$(window_manager_menu) || wm_choices=""
-    [ -n "$wm_choices" ] || return 0
+    wm_choice=$(window_manager_menu) || return 0
+    [ -n "$wm_choice" ] || return 0
+    [ "$wm_choice" = "Back" ] && return 0
 
-    if printf "%s\n" "$wm_choices" | grep -Fxq "Back" && [ "$(printf "%s\n" "$wm_choices" | wc -l)" -eq 1 ]; then
-        return 0
-    fi
-
-    mapfile -t _wm_arr <<< "$wm_choices"
-    for wm_choice in "${_wm_arr[@]}"; do
-        case $wm_choice in
-            "Install Hyprland")
-                run_wm_install_script "Hyprland" "hyprland-install.sh"
-                ;;
-            "Install Sway")
-                run_wm_install_script "Sway" "sway-install.sh"
-                ;;
-            "Install i3")
-                run_wm_install_script "i3" "i3-install.sh"
-                ;;
-            "Install bspwm")
-                run_wm_install_script "bspwm" "bspwm-install.sh"
-                ;;
-            "Back")
-                ;;
-        esac
-    done
+    case $wm_choice in
+        "Install Hyprland")
+            run_wm_install_script "Hyprland" "hyprland-install.sh"
+            ;;
+        "Install Sway")
+            run_wm_install_script "Sway" "sway-install.sh"
+            ;;
+        "Install i3")
+            run_wm_install_script "i3" "i3-install.sh"
+            ;;
+        "Install bspwm")
+            run_wm_install_script "bspwm" "bspwm-install.sh"
+            ;;
+    esac
 }
 
 prompt_install_window_managers_after_install() {
