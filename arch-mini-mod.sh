@@ -94,7 +94,6 @@ function menu() {
 
 function window_manager_menu() {
     gum choose \
-        --no-limit \
         "Install Hyprland" \
         "Install Sway" \
         "Install i3" \
@@ -115,12 +114,17 @@ run_wm_install_script() {
 }
 
 install_selected_window_managers() {
+    local wm_choices
     local wm_choice
 
-    wm_choice=$(window_manager_menu) || return 0
-    [ -n "$wm_choice" ] || return 0
-    [ "$wm_choice" = "Back" ] && return 0
+    wm_choices=$(window_manager_menu) || wm_choices=""
+    [ -n "$wm_choices" ] || return 0
 
+    if [ "$wm_choices" = "Back" ]; then
+        return 0
+    fi
+
+    wm_choice="$wm_choices"
     case $wm_choice in
         "Install Hyprland")
             run_wm_install_script "Hyprland" "hyprland-install.sh"
