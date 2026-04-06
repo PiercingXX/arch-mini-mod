@@ -155,36 +155,44 @@ while true; do
     case $choice in
         "Install Arch Mini Mod")
             # Turn off sleep/suspend to avoid interruptions
-            gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'false'
-            gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type 'false'
-            gsettings set org.gnome.settings-daemon.plugins.power idle-dim 'false'
-            echo -e "${YELLOW}Installing Essentials...${NC}"
-            cd scripts || exit
-            chmod u+x step-1.sh
-            ./step-1.sh
-            wait
-            cd "$builddir" || exit
-            echo -e "${GREEN}Essentials Installed successfully!${NC}"
-            echo -e "${YELLOW}Applying PiercingXX Gnome Customizations...${NC}"
-            rm -rf piercing-dots
-            git clone --depth 1 https://github.com/Piercingxx/piercing-dots.git
-            cd piercing-dots || exit
-            chmod u+x install.sh
-            ./install.sh
-            cd "$builddir" || exit
-            wait
-            sudo systemctl start bluetooth
-            systemctl enable bluetooth
-            cd piercing-dots/scripts || exit
-            ./gnome-customizations.sh
-            wait
-            cd "$builddir" || exit
-            cp -f piercing-dots/resources/bash/.bashrc /home/"$username"/.bashrc
-            source "$HOME/.bashrc"
-            rm -rf piercing-dots
+                echo -e "${YELLOW}Installing Essentials...${NC}"
+                cd scripts || exit
+                chmod u+x step-1.sh
+                ./step-1.sh
+                wait
+                cd "$builddir" || exit
+                echo -e "${GREEN}Essentials Installed successfully!${NC}"
+                echo -e "${YELLOW}Applying PiercingXX Gnome Customizations...${NC}"
+                rm -rf piercing-dots
+                git clone --depth 1 https://github.com/Piercingxx/piercing-dots.git
+                cd piercing-dots || exit
+                chmod u+x install.sh
+                ./install.sh
+                cd "$builddir" || exit
+                wait
+                sudo systemctl start bluetooth
+                systemctl enable bluetooth
+                cd piercing-dots/scripts || exit
+                ./gnome-customizations.sh
+                wait
+                cd "$builddir" || exit
+            # Bash support
+                cp -f piercing-dots/resources/bash/.bashrc /home/"$username"/.bashrc
+                source "$HOME/.bashrc"
+                rm -rf piercing-dots
             # Install bash stuff
                 install_bashrc_support
             echo -e "${GREEN}PiercingXX Gnome Customizations Applied successfully!${NC}"
+            # Install Pop Shell
+                chmod u+x scripts/install-pop-shell.sh
+                ./scripts/install-pop-shell.sh
+                wait
+                cd "$builddir" || exit
+            # Install Printers
+                chmod u+x scripts/install-printers.sh
+                ./scripts/install-printers.sh
+                wait
+                cd "$builddir" || exit
             prompt_install_window_managers_after_install
             msg_box "System will reboot now."
             sudo reboot
