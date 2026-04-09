@@ -4,6 +4,11 @@
 username=$(id -u -n 1000)
 builddir=$(pwd)
 
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
 
 # Create Directories if needed
     echo -e "${YELLOW}Creating Necessary Directories...${NC}"
@@ -55,16 +60,26 @@ builddir=$(pwd)
 
 # Add Paru
     echo -e "${YELLOW}Installing Paru, Flatpak, & Dependencies...${NC}"
-        # Clone and install Paru
-        echo "# Cloning and installing Paru..."
-        git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si --noconfirm && cd ..
+        if ! command_exists paru; then
+            # makepkg requires git + base-devel on fresh systems
+            sudo pacman -S --needed --noconfirm git base-devel
+            echo "# Cloning and installing Paru..."
+            paru_tmp_dir=$(mktemp -d /tmp/paru-bin.XXXXXX)
+            git clone https://aur.archlinux.org/paru-bin.git "$paru_tmp_dir"
+            cd "$paru_tmp_dir" || exit
+            makepkg -si --noconfirm --needed
+            cd "$builddir" || exit
+            rm -rf "$paru_tmp_dir"
+        else
+            echo "# Paru is already installed. Skipping install."
+        fi
 
 # Installing more Depends
     echo "# Installing more dependencies..."
     paru -S multitail jump-bin --noconfirm
     paru -S bluetuith --noconfirm
     paru -S dconf --noconfirm
-    paru -S cpio cmake meson --nocofirm
+    paru -S cpio cmake meson --noconfirm
     paru -S fwupd --noconfirm
     paru -S w3m --noconfirm
     paru -S kitty --noconfirm
