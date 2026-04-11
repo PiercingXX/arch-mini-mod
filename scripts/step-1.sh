@@ -64,7 +64,7 @@ builddir=$(pwd)
     paru -S multitail jump-bin --noconfirm
     paru -S bluetuith --noconfirm
     paru -S dconf --noconfirm
-    paru -S cpio cmake meson --nocofirm
+    paru -S cpio cmake meson --noconfirm
     paru -S fwupd --noconfirm
     paru -S w3m --noconfirm
     paru -S kitty --noconfirm
