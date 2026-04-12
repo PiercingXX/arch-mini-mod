@@ -53,11 +53,21 @@ builddir=$(pwd)
     sudo pacman -S sshpass --noconfirm
     sudo pacman -S htop --noconfirm
 
-# Add Paru
+# Add Paru, Flatpak, & Dependencies if needed
     echo -e "${YELLOW}Installing Paru, Flatpak, & Dependencies...${NC}"
-        # Clone and install Paru
-        echo "# Cloning and installing Paru..."
-        git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si --noconfirm && cd ..
+        # Install Paru
+        # Ensure build prerequisites are present and avoid cargo provider prompt under --noconfirm.
+        sudo pacman -S --needed --noconfirm git base-devel rust cargo
+        git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si --noconfirm && cd ..
+        # Packages that require AUR helper
+        paru -S nvtop-git --noconfirm
+        paru -S lnav --noconfirm
+        # Add Flatpak
+        echo "# Installing Flatpak..."
+        sudo pacman -S flatpak --noconfirm
+        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+
 
 # Installing more Depends
     echo "# Installing more dependencies..."
