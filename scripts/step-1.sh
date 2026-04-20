@@ -5,8 +5,16 @@ set -euo pipefail
 
 trap 'echo "# Installer failed at line ${LINENO}: ${BASH_COMMAND}" >&2' ERR
 
+YELLOW='\033[1;33m'
+GREEN='\033[1;32m'
+NC='\033[0m'
+
 username=$(id -u -n 1000)
 builddir=$(pwd)
+
+install_bashrc_support() {
+    return 0
+}
 
 configure_pipewire_session() {
     sudo mkdir -p /etc/xdg/autostart
@@ -273,7 +281,7 @@ ensure_tty_boot_without_gdm() {
     echo "# Enabling Bluetooth and Printer services..."
     # Enable Bluetooth
         sudo systemctl start bluetooth
-        systemctl enable bluetooth
+        sudo systemctl enable bluetooth
     # Enable Printer 
         sudo pacman -S cups gutenprint cups-pdf gtk3-print-backends nmap net-tools cmake meson cpio --noconfirm
         sudo systemctl enable cups.service

@@ -181,37 +181,7 @@ while true; do
                 wait
                 cd "$builddir" || exit
                 echo -e "${GREEN}Essentials Installed successfully!${NC}"
-                echo -e "${YELLOW}Applying PiercingXX Gnome Customizations...${NC}"
-                rm -rf piercing-dots
-                git clone --depth 1 https://github.com/Piercingxx/piercing-dots.git
-                cd piercing-dots || exit
-                chmod u+x install.sh
-                ./install.sh
-                cd "$builddir" || exit
-                wait
-                sudo systemctl start bluetooth
-                systemctl enable bluetooth
-                cd piercing-dots/scripts || exit
-                ./gnome-customizations.sh
-                wait
-                cd "$builddir" || exit
-            # Bash support
-                cp -f piercing-dots/resources/bash/.bashrc /home/"$username"/.bashrc
-                source "$HOME/.bashrc"
-                rm -rf piercing-dots
-            # Install bash stuff
-                install_bashrc_support
-            echo -e "${GREEN}PiercingXX Gnome Customizations Applied successfully!${NC}"
-            # Install Pop Shell
-                chmod u+x scripts/install-pop-shell.sh
-                ./scripts/install-pop-shell.sh
-                wait
-                cd "$builddir" || exit
-            # Install Printers
-                chmod u+x scripts/install-printers.sh
-                ./scripts/install-printers.sh
-                wait
-                cd "$builddir" || exit
+                echo -e "${GREEN}Base install finished. Skipping duplicate GNOME customization, Pop Shell, and printer setup from the wrapper script.${NC}"
             prompt_install_window_managers_after_install
             msg_box "System will reboot now."
             sudo reboot
