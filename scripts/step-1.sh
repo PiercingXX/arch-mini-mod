@@ -305,7 +305,7 @@ ensure_tty_boot_without_gdm() {
     paru -S ttf-ms-fonts --noconfirm
     paru -S terminus-font-ttf --noconfirm
     paru -S wtype-git --noconfirm
-    paru -S xcursor-simp1e-gruvbox-light --noconfirm
+    paru -S --needed win2xcur --noconfirm
     # Reload Font
     fc-cache -vf
     wait
