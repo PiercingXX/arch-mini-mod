@@ -20,12 +20,22 @@ ${PKGMGR} hyprlock
 ${PKGMGR} hypridle
 ${PKGMGR} hyprcursor-git
 ${PKGMGR} hyprsunset
+${PKGMGR} xdg-desktop-portal-hyprland
+${PKGMGR} xdg-desktop-portal-gtk
 ${PKGMGR} polkit-gnome
+${PKGMGR} gnome-keyring
+${PKGMGR} xdg-user-dirs
+${PKGMGR} xdg-utils
 
 # Install additional utilities
 ${PKGMGR} wlsunset-git
 ${PKGMGR} wl-clipboard
 ${PKGMGR} libdbusmenu-gtk3
+${PKGMGR} gum
+${PKGMGR} kitty
+${PKGMGR} neovim-nightly-bin
+${PKGMGR} yazi-nightly-bin
+${PKGMGR} jq
 
 # Set up Waybar and menus
 ${PKGMGR} waybar
@@ -35,6 +45,7 @@ ${PKGMGR} wlogout
 ${PKGMGR} libnotify
 ${PKGMGR} notification-daemon
 ${PKGMGR} swaync
+${PKGMGR} easyeffects
 
 # Install file manager and customization tools
 ${PKGMGR} nautilus
