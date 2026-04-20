@@ -132,7 +132,7 @@ ensure_tty_boot_without_gdm() {
     sudo pacman -S tmux --noconfirm
     sudo pacman -S sshpass --noconfirm
     sudo pacman -S htop --noconfirm
-    sudo pacman -S gnome --noconfirm
+    sudo pacman -S gnome-shell --noconfirm
     sudo pacman -S --needed --noconfirm webkit2gtk-4.1
     install_optional_arch_packages linux-firmware-brcm43752 linux-firmware-broadcom linux-firmware-realtek
 
@@ -349,6 +349,8 @@ ensure_tty_boot_without_gdm() {
     git clone --depth 1 https://aur.archlinux.org/ulauncher.git /tmp/ulauncher
     (
         cd /tmp/ulauncher || exit
+        # Arch now ships webkit2gtk as webkit2gtk-4.1; patch old AUR dep name.
+        sed -i "s/'webkit2gtk'/'webkit2gtk-4.1'/" PKGBUILD
         makepkg -is --needed --noconfirm
     )
 
