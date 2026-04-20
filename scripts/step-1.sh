@@ -1,9 +1,39 @@
 #!/bin/bash
 # GitHub.com/PiercingXX
 
-set -euo pipefail
+set -uo pipefail
 
-trap 'echo "# Installer failed at line ${LINENO}: ${BASH_COMMAND}" >&2' ERR
+FAILED_COMMANDS=()
+
+record_failure() {
+    local rc=$?
+    local line_no="$1"
+    local cmd="$BASH_COMMAND"
+
+    # Avoid trap noise from trap internals.
+    if [[ "$cmd" == *record_failure* ]]; then
+        return 0
+    fi
+
+    FAILED_COMMANDS+=("line ${line_no}: ${cmd} (exit ${rc})")
+    return 0
+}
+
+print_failure_summary() {
+    if [[ ${#FAILED_COMMANDS[@]} -eq 0 ]]; then
+        echo -e "${GREEN}Installer finished with no command failures.${NC}"
+        return 0
+    fi
+
+    echo
+    echo "# Installer completed with failures (${#FAILED_COMMANDS[@]}):"
+    local failure
+    for failure in "${FAILED_COMMANDS[@]}"; do
+        echo "- ${failure}"
+    done
+}
+
+trap 'record_failure ${LINENO}' ERR
 
 YELLOW='\033[1;33m'
 GREEN='\033[1;32m'
@@ -149,8 +179,16 @@ ensure_tty_boot_without_gdm() {
 
 #Hyprland and Utilities
     paru -S --noconfirm hyprland-meta-git
-    paru -S --noconfirm hyprpaper
-    paru -S --noconfirm hypridle
+    if pacman -Q hyprpaper-git >/dev/null 2>&1; then
+        echo "# hyprpaper-git already present; skipping hyprpaper to avoid conflicts"
+    else
+        paru -S --needed --noconfirm hyprpaper
+    fi
+    if pacman -Q hypridle-git >/dev/null 2>&1; then
+        echo "# hypridle-git already present; skipping hypridle to avoid conflicts"
+    else
+        paru -S --needed --noconfirm hypridle
+    fi
     paru -S --noconfirm polkit-gnome
     paru -S --noconfirm wl-clipboard
     paru -S --noconfirm libdbusmenu-gtk3
@@ -309,6 +347,9 @@ ensure_tty_boot_without_gdm() {
     rm -rf /tmp/ulauncher
     git clone --depth 1 https://aur.archlinux.org/ulauncher.git /tmp/ulauncher
     (
-        cd /tmp/ulauncher
+        cd /tmp/ulauncher || exit
         makepkg -is --needed --noconfirm
     )
+
+print_failure_summary
+exit 0

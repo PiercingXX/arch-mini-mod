@@ -1,7 +1,7 @@
 #!/bin/bash
 # GitHub.com/PiercingXX
 
-set -euo pipefail
+set -uo pipefail
 
 # Script to install and enable KooTigers drivers service
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -uo pipefail
 
 PRINTER_TARGET="${PRINTER_TARGET:-${1:-}}"
 SET_DEFAULT_PRINTER="${SET_DEFAULT_PRINTER:-1}"

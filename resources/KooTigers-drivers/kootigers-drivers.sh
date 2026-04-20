@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Enable Goodix GDIX1002 touchscreen (run as root)
-set -euo pipefail
+set -uo pipefail
 
 DEV_SYSPATH="/sys/bus/i2c/devices/i2c-GDIX1002:00"
 # wait for device node

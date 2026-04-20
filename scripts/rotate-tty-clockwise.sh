@@ -1,7 +1,7 @@
 #!/bin/bash
 # GitHub.com/PiercingXX
 
-set -euo pipefail
+set -uo pipefail
 
 ROTATION_VALUE=1
 KERNEL_ARG="fbcon=rotate:${ROTATION_VALUE}"
