@@ -24,6 +24,16 @@ configure_pipewire_session() {
     fi
 }
 
+ensure_tty_boot_without_gdm() {
+    # Keep boot flow in TTY and prevent display manager auto-start.
+    if systemctl list-unit-files | grep -q '^gdm\.service'; then
+        sudo systemctl disable --now gdm.service || true
+        sudo systemctl mask gdm.service || true
+    fi
+
+    sudo systemctl set-default multi-user.target
+}
+
 
 # Create Directories if needed
     echo -e "${YELLOW}Creating Necessary Directories...${NC}"
@@ -72,6 +82,7 @@ configure_pipewire_session() {
     sudo pacman -S tmux --noconfirm
     sudo pacman -S sshpass --noconfirm
     sudo pacman -S htop --noconfirm
+    sudo pacman -S gnome-shell --noconfirm
 
 # Add Paru, Flatpak, & Dependencies if needed
     echo -e "${YELLOW}Installing Paru, Flatpak, & Dependencies...${NC}"
@@ -272,3 +283,6 @@ configure_pipewire_session() {
         #paru -S cndrvcups-lb --noconfirm # Canon D530 driver
     # Add dialout to edit ZMK and VIA Keyboards
         sudo usermod -aG uucp $USER
+
+# Keep system on TTY by default (no GDM)
+    ensure_tty_boot_without_gdm

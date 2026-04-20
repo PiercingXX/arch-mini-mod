@@ -7,6 +7,8 @@ ROTATION_VALUE=1
 KERNEL_ARG="fbcon=rotate:${ROTATION_VALUE}"
 GRUB_DEFAULT_FILE="/etc/default/grub"
 GRUB_CFG_TARGET=""
+SYSTEMD_UNIT_NAME="rotate-tty-clockwise.service"
+SYSTEMD_UNIT_PATH="/etc/systemd/system/${SYSTEMD_UNIT_NAME}"
 
 log() {
     printf '%s\n' "$*"
@@ -61,9 +63,33 @@ persist_grub_rotation() {
     return 1
 }
 
+install_systemd_rotation_service() {
+    cat <<EOF | sudo tee "$SYSTEMD_UNIT_PATH" >/dev/null
+[Unit]
+Description=Apply framebuffer console rotation at boot
+DefaultDependencies=no
+After=systemd-modules-load.service
+Before=getty.target
+ConditionPathExists=/sys/class/graphics/fbcon/rotate_all
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash -c 'echo ${ROTATION_VALUE} > /sys/class/graphics/fbcon/rotate_all'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable "$SYSTEMD_UNIT_NAME" >/dev/null
+    log "Installed and enabled ${SYSTEMD_UNIT_NAME} for boot-time rotation"
+}
+
 main() {
     log "Rotating TTY 90 degrees clockwise"
     apply_runtime_rotation
+    install_systemd_rotation_service
     persist_grub_rotation || true
     log "Reboot required for boot-time TTY rotation to fully take effect"
 }
