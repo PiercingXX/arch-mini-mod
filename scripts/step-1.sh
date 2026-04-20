@@ -133,6 +133,7 @@ ensure_tty_boot_without_gdm() {
     sudo pacman -S sshpass --noconfirm
     sudo pacman -S htop --noconfirm
     sudo pacman -S gnome-shell --noconfirm
+    sudo pacman -S --needed --noconfirm webkit2gtk-4.1
     install_optional_arch_packages linux-firmware-brcm43752 linux-firmware-broadcom linux-firmware-realtek
 
 # Add Paru, Flatpak, & Dependencies if needed
