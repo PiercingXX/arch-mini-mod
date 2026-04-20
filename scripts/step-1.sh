@@ -16,6 +16,18 @@ install_bashrc_support() {
     return 0
 }
 
+install_optional_arch_packages() {
+    local pkg
+
+    for pkg in "$@"; do
+        if pacman -Si "$pkg" >/dev/null 2>&1; then
+            sudo pacman -S --needed --noconfirm "$pkg"
+        else
+            printf '# Optional package not found in repos, skipping: %s\n' "$pkg"
+        fi
+    done
+}
+
 configure_pipewire_session() {
     sudo mkdir -p /etc/xdg/autostart
 
@@ -84,13 +96,14 @@ ensure_tty_boot_without_gdm() {
     sudo pacman -S w3m --noconfirm
     sudo pacman -S reflector --noconfirm
     sudo pacman -S zip unzip gzip tar make wget tar fontconfig --noconfirm
-    sudo pacman -Syu linux-firmware linux-firmware-brcm43752 linux-firmware-broadcom linux-firmware-realtek --noconfirm
+    sudo pacman -S --needed --noconfirm linux-firmware
     sudo pacman -S bluez bluez-utils --noconfirm
     sudo pacman -S iw --noconfirm
     sudo pacman -S tmux --noconfirm
     sudo pacman -S sshpass --noconfirm
     sudo pacman -S htop --noconfirm
     sudo pacman -S gnome-shell --noconfirm
+    install_optional_arch_packages linux-firmware-brcm43752 linux-firmware-broadcom linux-firmware-realtek
 
 # Add Paru, Flatpak, & Dependencies if needed
     echo -e "${YELLOW}Installing Paru, Flatpak, & Dependencies...${NC}"
