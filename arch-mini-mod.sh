@@ -1,7 +1,11 @@
 #!/bin/bash
 # GitHub.com/PiercingXX
 
-# Define colors for whiptail
+# Define terminal colors
+YELLOW='\033[1;33m'
+GREEN='\033[1;32m'
+BLUE='\033[1;34m'
+NC='\033[0m'
 
 # Check if running as root. If root, script will exit
 if [[ $EUID -eq 0 ]]; then
@@ -22,31 +26,38 @@ cache_sudo_credentials() {
     (while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &)
 }
 
-# Checks for active network connection
-if [[ -n "$(command -v nmcli)" && "$(nmcli -t -f STATE g)" != connected ]]; then
-    awk '{print}' <<<"Network connectivity is required to continue."
-    exit
-fi
+install_bashrc_support() {
+    return 0
+}
 
-# Check for active network connection
-    if command_exists nmcli; then
-        state=$(nmcli -t -f STATE g)
+ensure_network_online() {
+    local state=""
+
+    if command_exists nmcli && state=$(nmcli -t -f STATE g 2>/dev/null); then
         if [[ "$state" != connected ]]; then
             echo "Network connectivity is required to continue."
-            exit 1
+            echo "nmcli reports state: $state"
         fi
     else
-        # Fallback: ensure at least one interface has an IPv4 address
-        if ! ip -4 addr show | grep -q "inet "; then
+        echo "NetworkManager status unavailable, falling back to route/interface checks..."
+    fi
+
+    if ip route show default 2>/dev/null | grep -q '^default ' && ip -4 addr show up 2>/dev/null | grep -q "inet "; then
+        return 0
+    fi
+
+    if ! ip -4 addr show up 2>/dev/null | grep -q "inet "; then
+        echo "Network connectivity is required to continue."
+        exit 1
+    fi
+
+    if ! ping -c 1 -W 1 8.8.8.8 >/dev/null 2>&1; then
+        if ! ping -c 1 -W 1 1.1.1.1 >/dev/null 2>&1; then
             echo "Network connectivity is required to continue."
             exit 1
         fi
     fi
-        # Additional ping test to confirm internet reachability
-        if ! ping -c 1 -W 1 8.8.8.8 >/dev/null 2>&1; then
-            echo "Network connectivity is required to continue."
-            exit 1
-        fi
+}
 
 
 
@@ -73,6 +84,9 @@ builddir=$(pwd)
 # Cache sudo credentials
 cache_sudo_credentials
 
+# Require network for installs/downloads
+ensure_network_online
+
 
 # Function to display a message box using gum
 function msg_box() {
@@ -88,6 +102,7 @@ function menu() {
         "Apply KooTigers Touchscreen Driver" \
         "Apply NuVision 8in Tablet Fixes" \
         "Apply Microsoft Surface Kernel" \
+        "Rotate TTY Clockwise" \
         "Reboot System" \
         "Exit"
 }
@@ -108,7 +123,11 @@ run_wm_install_script() {
     echo -e "${YELLOW}Installing ${label} & Dependencies...${NC}"
     cd scripts || exit
     chmod u+x "$script_name"
-    ./$script_name
+    if ! ./"$script_name"; then
+        cd "$builddir" || true
+        echo -e "${YELLOW}${label} install encountered errors — check output above.${NC}"
+        return 1
+    fi
     cd "$builddir" || exit
     echo -e "${GREEN}${label} Installed successfully!${NC}"
 }
@@ -230,6 +249,12 @@ while true; do
             sudo ./surface-kernel.sh
             cd "$builddir" || exit
             echo -e "${GREEN}Microsoft Kernal Installed. Manually create a Boot Loader Entry then reboot!${NC}"
+            ;;
+        "Rotate TTY Clockwise")
+            echo -e "${YELLOW}Rotating TTY 90 degrees clockwise and persisting in GRUB...${NC}"
+            chmod +x scripts/rotate-tty-clockwise.sh
+            sudo scripts/rotate-tty-clockwise.sh
+            echo -e "${GREEN}TTY rotation applied. Reboot for full effect.${NC}"
             ;;
         "Reboot System")
             echo -e "${YELLOW}Rebooting system in 3 seconds...${NC}"

@@ -1,8 +1,28 @@
 #!/bin/bash
 # GitHub.com/PiercingXX
 
+set -euo pipefail
+
+trap 'echo "# Installer failed at line ${LINENO}: ${BASH_COMMAND}" >&2' ERR
+
 username=$(id -u -n 1000)
 builddir=$(pwd)
+
+configure_pipewire_session() {
+    sudo mkdir -p /etc/xdg/autostart
+
+    if [ -f /usr/share/applications/pipewire.desktop ]; then
+        sudo ln -snf /usr/share/applications/pipewire.desktop /etc/xdg/autostart/pipewire.desktop
+    fi
+
+    if [ -f /usr/share/applications/pipewire-pulse.desktop ]; then
+        sudo ln -snf /usr/share/applications/pipewire-pulse.desktop /etc/xdg/autostart/pipewire-pulse.desktop
+    fi
+
+    if [ -f /usr/share/applications/wireplumber.desktop ]; then
+        sudo ln -snf /usr/share/applications/wireplumber.desktop /etc/xdg/autostart/wireplumber.desktop
+    fi
+}
 
 
 # Create Directories if needed
@@ -18,11 +38,11 @@ builddir=$(pwd)
             fi
             chown -R "$username":"$username" /home/"$username"/.icons
         # Background and Profile Image Directories
-            if [ ! -d "$HOME/$username/Pictures/backgrounds" ]; then
+            if [ ! -d "$HOME/Pictures/backgrounds" ]; then
                 mkdir -p /home/"$username"/Pictures/backgrounds
             fi
             chown -R "$username":"$username" /home/"$username"/Pictures/backgrounds
-            if [ ! -d "$HOME/$username/Pictures/profile-image" ]; then
+            if [ ! -d "$HOME/Pictures/profile-image" ]; then
                 mkdir -p /home/"$username"/Pictures/profile-image
             fi
             chown -R "$username":"$username" /home/"$username"/Pictures/profile-image
@@ -65,8 +85,8 @@ builddir=$(pwd)
         # Add Flatpak
         echo "# Installing Flatpak..."
         sudo pacman -S flatpak --noconfirm
-        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-        flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+        sudo flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        sudo flatpak remote-add --system --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
 
 
 # Installing more Depends
@@ -87,14 +107,14 @@ builddir=$(pwd)
     paru -S proton-vpn-gtk-app --noconfirm
     paru -S nvtop-git --noconfirm
     paru -S lnav --noconfirm
-    flatpak install flathub net.waterfox.waterfox -y
-    flatpak install flathub md.obsidian.Obsidian -y
-    flatpak install flathub org.libreoffice.LibreOffice -y
-    flatpak install flathub com.mattjakeman.ExtensionManager -y
-    flatpak install flathub org.qbittorrent.qBittorrent -y
-    flatpak install flathub io.missioncenter.MissionCenter -y
-    flatpak install flathub io.github.shiftey.Desktop -y #Github Desktop
-    flatpak install --noninteractive flathub io.github.realmazharhussain.GdmSettings -y
+    sudo flatpak install --system flathub net.waterfox.waterfox -y
+    sudo flatpak install --system flathub md.obsidian.Obsidian -y
+    sudo flatpak install --system flathub org.libreoffice.LibreOffice -y
+    sudo flatpak install --system flathub com.mattjakeman.ExtensionManager -y
+    sudo flatpak install --system flathub org.qbittorrent.qBittorrent -y
+    sudo flatpak install --system flathub io.missioncenter.MissionCenter -y
+    sudo flatpak install --system flathub io.github.shiftey.Desktop -y #Github Desktop
+    sudo flatpak install --system --noninteractive flathub io.github.realmazharhussain.GdmSettings -y
 
 
 #Hyprland and Utilities
@@ -118,6 +138,8 @@ builddir=$(pwd)
     paru -S --noconfirm cliphist
     paru -S --noconfirm pamixer
     paru -S --noconfirm cava
+    sudo pacman -S pipewire wireplumber pipewire-pulse pipewire-alsa --noconfirm
+    sudo pacman -S gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav --noconfirm
     paru -S --noconfirm wireplumber
     paru -S --noconfirm playerctl
     paru -S --noconfirm pavucontrol
@@ -125,6 +147,7 @@ builddir=$(pwd)
     paru -S --noconfirm network-manager-applet
     paru -S --noconfirm nwg-look
     paru -S --noconfirm nwg-displays
+    configure_pipewire_session
 
 # Nvim & Depends
     paru -Rs neovim --noconfirm
