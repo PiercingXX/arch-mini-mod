@@ -1,6 +1,8 @@
 #!/bin/bash
 # GitHub.com/PiercingXX
 
+set -u
+
 # Define terminal colors
 YELLOW='\033[1;33m'
 GREEN='\033[1;32m'
@@ -177,7 +179,12 @@ while true; do
                 echo -e "${YELLOW}Installing Essentials...${NC}"
                 cd scripts || exit
                 chmod u+x step-1.sh
-                ./step-1.sh
+                if ! ./step-1.sh; then
+                    cd "$builddir" || true
+                    echo -e "${YELLOW}Essentials install failed. Check the error output above; reboot has been skipped.${NC}"
+                    gum confirm "Press [Enter] to continue..." || break
+                    continue
+                fi
                 wait
                 cd "$builddir" || exit
                 echo -e "${GREEN}Essentials Installed successfully!${NC}"

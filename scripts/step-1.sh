@@ -78,7 +78,7 @@ ensure_tty_boot_without_gdm() {
     sudo pacman -S starship --noconfirm
     sudo pacman -S eza --noconfirm
     sudo pacman -S bat --noconfirm
-    sudo pacman -S fzf --noconfirm
+    sudo pacman -S --needed --overwrite '/usr/share/fzf/*' fzf --noconfirm
     sudo pacman -S trash-cli --noconfirm
     sudo pacman -S chafa --noconfirm
     sudo pacman -S w3m --noconfirm
@@ -200,7 +200,6 @@ ensure_tty_boot_without_gdm() {
     paru -S poppler --noconfirm
     paru -S fd --noconfirm
     paru -S ripgrep --noconfirm
-    paru -S fzf --noconfirm
     paru -S zoxide --noconfirm
     paru -S resvg --noconfirm
     paru -S imagemagick --noconfirm
