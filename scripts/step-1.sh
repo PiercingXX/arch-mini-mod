@@ -135,7 +135,15 @@ ensure_tty_boot_without_gdm() {
     paru -S npm --noconfirm
     paru -S nautilus-open-any-terminal --noconfirm
     paru -S nautilus-renamer --noconfirm
-    paru -S ulauncher --noconfirm
+
+    # Install Ulauncher directly from AUR checkout.
+    rm -rf /tmp/ulauncher
+    git clone --depth 1 https://aur.archlinux.org/ulauncher.git /tmp/ulauncher
+    (
+        cd /tmp/ulauncher
+        makepkg -is --needed --noconfirm
+    )
+
     paru -S proton-vpn-gtk-app --noconfirm
     paru -S nvtop-git --noconfirm
     paru -S lnav --noconfirm
