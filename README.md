@@ -1,17 +1,26 @@
 
 # Arch‑Mini‑Mod
 
-A minimal Arch Linux installer focused on Hyprland.  
-Designed for a lightweight setup, ideal for Linux tablets and touch devices.
-Automates essential package installation, Hyprland setup, and basic configuration for a streamlined, touch-friendly experience.
+A minimal Arch Linux installer focused on Hyprland.
 
+Designed for a lightweight setup, ideal for Linux tablets, and touch devices, but also lightweight laptop setup.
+
+GDM is disabled by default. You can enable it in tty. 
+
+This is a dual setup. 
+    - Gnome for touchscreen stuff (boot into Gnome)
+    - An ultra minimal Hyprland setup without waybar (boot into hypr)
+        I work mainly in tmux on the devices I use this on with a keyboard. 
+        If you simply install waybar and reboot, the dots already support it. 
 
 
 ## 📦 Features
 
-- Minimal install: only core packages and Hyprland
+- Minimal install: only core packages, Gnome, and Hyprland
 - Lightweight and fast, perfect for tablets or low-resource devices
 - Optional Microsoft Surface kernel support
+- Optional KooTigers Mini Pc support
+- Optional NuVision 8" Tablet TM800W610L support
 - Touch-friendly configuration
 - Applies [Piercing‑Dots](https://github.com/PiercingXX/piercing-dots) minimal dotfiles
 
