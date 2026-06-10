@@ -6,9 +6,9 @@ PRINTER_TARGET="${PRINTER_TARGET:-${1:-}}"
 SET_DEFAULT_PRINTER="${SET_DEFAULT_PRINTER:-1}"
 
 CANON_PRINTER_NAME="${CANON_PRINTER_NAME:-${PRINTER_NAME:-Canon-D530}}"
-CANON_DEVICE_URI="${CANON_DEVICE_URI:-${DEVICE_URI:-cnusbufr2:/dev/usb/lp0}}"
-CANON_PREFERRED_PPD="${CANON_PREFERRED_PPD:-${PREFERRED_PPD:-/usr/share/cups/model/CNRCUPSD560ZK.ppd}}"
-CANON_FALLBACK_PPD="${CANON_FALLBACK_PPD:-${FALLBACK_PPD:-/usr/share/cups/model/CNRCUPSD560ZS.ppd}}"
+CANON_DEVICE_URI="${CANON_DEVICE_URI:-${DEVICE_URI:-}}"
+CANON_PREFERRED_PPD="${CANON_PREFERRED_PPD:-${PREFERRED_PPD:-/usr/share/cups/model/CNRCUPSD560ZS.ppd}}"
+CANON_FALLBACK_PPD="${CANON_FALLBACK_PPD:-${FALLBACK_PPD:-/usr/share/cups/model/CNRCUPSD560ZK.ppd}}"
 CANON_DRIVER_PACKAGE="${CANON_DRIVER_PACKAGE:-${DRIVER_PACKAGE:-cnrdrvcups-lb-bin}}"
 RUN_TEST_PRINT="${RUN_TEST_PRINT:-1}"
 APPLY_LIBREOFFICE_FLATPAK_FIX="${APPLY_LIBREOFFICE_FLATPAK_FIX:-1}"
@@ -44,6 +44,7 @@ Targets:
 Examples:
   ./install-printers.sh canon-d530
   RUN_TEST_PRINT=0 ./install-printers.sh canon-d530
+  CANON_DEVICE_URI=auto ./install-printers.sh canon-d530
   CANON_DEVICE_URI=cnusbufr2:/dev/usb/lp1 ./install-printers.sh canon-d530
 
   ./install-printers.sh omezizy
@@ -53,6 +54,113 @@ Examples:
 You can also set PRINTER_TARGET instead of passing a positional argument.
 Legacy environment variable names from the old standalone scripts are still accepted.
 EOF
+}
+
+prompt_for_target() {
+  if [[ ! -t 0 ]]; then
+    return 0
+  fi
+
+  printf 'Select printer target:\n'
+  printf '  1) Canon D530\n'
+  printf '  2) Omezizy label printer\n'
+  printf '  0) Cancel\n'
+  printf 'Choice: '
+
+  local choice
+  read -r choice
+
+  case "$choice" in
+    1)
+      PRINTER_TARGET='canon-d530'
+      ;;
+    2)
+      PRINTER_TARGET='omezizy'
+      ;;
+    0|'')
+      PRINTER_TARGET='help'
+      ;;
+    *)
+      die "Invalid selection: ${choice}"
+      ;;
+  esac
+}
+
+ensure_canon_backend_installed() {
+  local backend_path='/usr/lib/cups/backend/cnusbufr2'
+
+  if [[ -x "$backend_path" ]]; then
+    return 0
+  fi
+
+  die "Canon backend not found/executable at ${backend_path}. Reinstall ${CANON_DRIVER_PACKAGE}."
+}
+
+find_existing_canon_uri() {
+  lpstat -v 2>/dev/null | awk '/^device for / && /usb:\/\/Canon\/D530\/D560\?serial=/{print $NF; exit}'
+}
+
+find_canon_uri_from_lsusb() {
+  local serial
+
+  command -v lsusb >/dev/null 2>&1 || return 1
+
+  serial="$(lsusb -v -d 04a9:2775 2>/dev/null | awk '/iSerial/{print $NF; exit}')"
+  [[ -n "$serial" ]] || return 1
+
+  printf 'usb://Canon/D530/D560?serial=%s&interface=1\n' "$serial"
+}
+
+find_canon_backend_uri() {
+  local lp_node
+
+  command -v udevadm >/dev/null 2>&1 || return 1
+
+  for lp_node in /dev/usb/lp*; do
+    [[ -e "$lp_node" ]] || continue
+
+    if udevadm info -a -n "$lp_node" 2>/dev/null | grep -q 'ATTRS{idVendor}=="04a9"'; then
+      printf 'cnusbufr2:%s\n' "$lp_node"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+find_canon_device_uri() {
+  local uri
+
+  if [[ -n "$CANON_DEVICE_URI" && "$CANON_DEVICE_URI" != 'auto' ]]; then
+    printf '%s\n' "$CANON_DEVICE_URI"
+    return 0
+  fi
+
+  uri="$(find_canon_backend_uri)"
+  if [[ -n "$uri" ]]; then
+    printf '%s\n' "$uri"
+    return 0
+  fi
+
+  uri="$(find_existing_canon_uri)"
+  if [[ -n "$uri" ]]; then
+    printf '%s\n' "$uri"
+    return 0
+  fi
+
+  uri="$(lpinfo -v 2>/dev/null | awk '/^direct usb:\/\/Canon\//{print $2; exit}')"
+  if [[ -n "$uri" ]]; then
+    printf '%s\n' "$uri"
+    return 0
+  fi
+
+  uri="$(find_canon_uri_from_lsusb)"
+  if [[ -n "$uri" ]]; then
+    printf '%s\n' "$uri"
+    return 0
+  fi
+
+  die 'Unable to resolve a Canon D530 device URI automatically. If multiple printers are attached, set CANON_DEVICE_URI explicitly and rerun.'
 }
 
 require_cmd() {
@@ -90,6 +198,11 @@ install_arch_packages() {
 install_aur_package() {
   local package_name="$1"
   local aur_helper
+
+  if pacman -Q "$package_name" >/dev/null 2>&1; then
+    log "${package_name} already installed; skipping AUR helper"
+    return 0
+  fi
 
   aur_helper="$(find_aur_helper)"
   log "Installing ${package_name} with ${aur_helper}"
@@ -203,21 +316,45 @@ find_omezizy_printer_uri() {
 }
 
 configure_canon_d530() {
-  local ppd
+  local ppd canon_uri
 
   log 'Configuring Canon D530 printer'
-  install_arch_packages cups
+  install_arch_packages cups usbutils
   ensure_cups_running
   require_cmd lpadmin
+  require_cmd lpinfo
   require_cmd lpstat
   require_cmd lpoptions
 
+  if command -v modprobe >/dev/null 2>&1; then
+    sudo modprobe usblp || true
+  fi
+
   install_aur_package "$CANON_DRIVER_PACKAGE"
+  ensure_canon_backend_installed
+
+  sudo systemctl restart cups.service
 
   ppd="$(select_canon_ppd)"
+  canon_uri="$(find_canon_device_uri)"
   log "Using PPD: ${ppd}"
+  log "Using Canon URI: ${canon_uri}"
 
-  sudo lpadmin -p "$CANON_PRINTER_NAME" -E -v "$CANON_DEVICE_URI" -P "$ppd"
+  sudo lpadmin -x "$CANON_PRINTER_NAME" 2>/dev/null || true
+  cancel -a "$CANON_PRINTER_NAME" 2>/dev/null || true
+  sudo lpadmin -p "$CANON_PRINTER_NAME" -E -v "$canon_uri" -P "$ppd"
+
+  if [[ "$canon_uri" == usb://* ]]; then
+    sudo lpadmin -p "$CANON_PRINTER_NAME" -o usb-no-reattach-default=true
+  fi
+
+  sudo cupsenable "$CANON_PRINTER_NAME"
+  sudo cupsaccept "$CANON_PRINTER_NAME"
+
+  sleep 2
+  log 'Reloading CUPS to persist printer configuration'
+  sudo systemctl restart cups.service
+  sleep 2
   sudo cupsenable "$CANON_PRINTER_NAME"
   sudo cupsaccept "$CANON_PRINTER_NAME"
   set_default_printer "$CANON_PRINTER_NAME"
@@ -281,7 +418,7 @@ configure_omezizy() {
 
 normalize_target() {
   case "$1" in
-    canon|canon-d530|d530)
+    canon|cannon|canon-d530|d530)
       printf 'canon-d530\n'
       ;;
     omezizy|label|label-printer|xprinter)
@@ -302,6 +439,11 @@ main() {
   require_cmd systemctl
 
   PRINTER_TARGET="$(normalize_target "$PRINTER_TARGET")"
+
+  if [[ -z "$PRINTER_TARGET" ]]; then
+    prompt_for_target
+    PRINTER_TARGET="$(normalize_target "$PRINTER_TARGET")"
+  fi
 
   if [[ -z "$PRINTER_TARGET" || "$PRINTER_TARGET" == 'help' ]]; then
     show_usage

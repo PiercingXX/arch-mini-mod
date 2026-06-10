@@ -79,6 +79,7 @@ Check the [README](https://github.com/Piercingxx/arch-mini-mod/blob/main/resourc
 | Script                | Purpose                                 |
 |-----------------------|-----------------------------------------|
 | `scripts/apps.sh`     | Installs core desktop applications      |
+| `scripts/install-printers.sh` | Configures Canon D530 or Omezizy label printers |
 | `scripts/nvidia.sh`   | Installs proprietary NVIDIA drivers     |
 | `kootigers-drivers.sh` | Copies drivers and applies patch          |
 | `nuvision-tablet-drivers.sh` |Copies drivers and applies patch     |
