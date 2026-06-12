@@ -109,6 +109,7 @@ function menu() {
 
 function window_manager_menu() {
     gum choose \
+        "Install Awesome" \
         "Install Hyprland" \
         "Install Sway" \
         "Install i3" \
@@ -145,6 +146,9 @@ install_selected_window_managers() {
 
     wm_choice="$wm_choices"
     case $wm_choice in
+        "Install Awesome")
+            run_wm_install_script "Awesome" "awesome-install.sh"
+            ;;
         "Install Hyprland")
             run_wm_install_script "Hyprland" "hyprland-install.sh"
             ;;
