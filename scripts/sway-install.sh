@@ -68,4 +68,7 @@ ${PKGMGR} nwg-look
 ${PKGMGR} dconf
 ${PKGMGR} nwg-displays
 
+# Keep one network manager active across TTY and WMs.
+bash "$(dirname "$0")/network-manager-setup.sh"
+
 echo -e "\nAll Sway packages installed successfully!"

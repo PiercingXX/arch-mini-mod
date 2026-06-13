@@ -59,4 +59,7 @@ ${PKGMGR} network-manager-applet
 ${PKGMGR} polkit-gnome
 ${PKGMGR} gnome-keyring
 
+# Keep one network manager active across TTY and WMs.
+bash "$(dirname "$0")/network-manager-setup.sh"
+
 echo -e "\nAll Awesome packages installed successfully!"

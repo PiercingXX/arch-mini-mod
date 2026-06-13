@@ -65,4 +65,7 @@ ${PKGMGR} network-manager-applet
 ${PKGMGR} acpi
 ${PKGMGR} upower
 
+# Keep one network manager active across TTY and WMs.
+bash "$(dirname "$0")/network-manager-setup.sh"
+
 echo -e "\nAll i3 packages installed successfully!"

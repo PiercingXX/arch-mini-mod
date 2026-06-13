@@ -96,5 +96,8 @@ hyprpm enable dynamic-cursors || echo "Warning: Failed to enable dynamic-cursors
 hyprpm add https://github.com/horriblename/hyprgrass || echo "Warning: Failed to add hyprgrass"
 hyprpm enable hyprgrass || echo "Warning: Failed to enable hyprgrass"
 
+# Keep one network manager active across TTY and WMs.
+bash "$(dirname "$0")/network-manager-setup.sh"
+
 # Success message
 echo -e "\\nAll Hyprland packages and plugins installed successfully!"
