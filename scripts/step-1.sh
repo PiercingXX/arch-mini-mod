@@ -243,28 +243,6 @@ ensure_tty_boot_without_gdm() {
 # Install bash stuff
     install_bashrc_support
 
-# Yazi
-    paru -S yazi-nightly-bin --noconfirm
-    paru -S ffmpeg --noconfirm
-    paru -S 7zip --noconfirm
-    paru -S jq --noconfirm
-    paru -S poppler --noconfirm
-    paru -S fd --noconfirm
-    paru -S ripgrep --noconfirm
-    paru -S zoxide --noconfirm
-    paru -S resvg --noconfirm
-    paru -S imagemagick --noconfirm
-    ya pkg add dedukun/bookmarks
-    ya pkg add yazi-rs/plugins:mount
-    ya pkg add dedukun/relative-motions
-    ya pkg add yazi-rs/plugins:chmod
-    ya pkg add yazi-rs/plugins:smart-enter
-    ya pkg add AnirudhG07/rich-preview
-    ya pkg add grappas/wl-clipboard
-    ya pkg add Rolv-Apneseth/starship
-    ya pkg add yazi-rs/plugins:full-border
-    ya pkg add uhs-robert/recycle-bin
-    ya pkg add yazi-rs/plugins:diff
 
 # Apps to uninstall
     sudo pacman -Rs gnome-console --noconfirm
