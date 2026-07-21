@@ -82,10 +82,11 @@ orientation lock is probably on. Turn it off (as your user, not root):
 gsettings set org.gnome.settings-daemon.peripherals.touchscreen orientation-lock false
 ```
 
-The panel is portrait-native (1200x1920), so the boot console and login screen
-render sideways until GNOME starts. To fix that too, add
-`video=DSI-1:panel_orientation=right_side_up` (or `left_side_up`, whichever
-matches your unit) to the `options` line in `/boot/loader/entries/*.conf`.
+The panel is portrait-native (1200x1920) and the tablet is portrait-natural,
+so the boot console and login screen already render correctly — no
+`panel_orientation` kernel quirk is needed. Only if you want the boot screen
+in landscape instead, add `video=DSI-1:panel_orientation=right_side_up` (or
+`left_side_up`) to the `options` line in `/boot/loader/entries/*.conf`.
 
 ---
 
