@@ -48,6 +48,28 @@ sudo cp wifi-startup.desktop /etc/xdg/autostart/
 
 ---
 
+## 📶 WiFi Dropouts / Bluetooth Stutter Fix
+
+If WiFi randomly disconnects or Bluetooth is unusable while WiFi is on
+(applies to the BCM43430a0 / AP6212 chip, also found in the TMAX TM800W610L):
+
+```bash
+sudo ./fix-wifi-bt.sh
+```
+
+Then reboot. This does three things:
+
+- **`roamoff=1`** (`/etc/modprobe.d/brcmfmac.conf`) — the 2017 43430a0 firmware's
+  internal roaming engine crashes `brcmfmac` (look for `brcmf_bss_roaming_done`
+  WARNs in `dmesg`) and drops the connection; this hands roaming to wpa_supplicant.
+- **WiFi powersave off** (`/etc/NetworkManager/conf.d/wifi-powersave-off.conf`) —
+  SDIO powersave on this chip causes latency spikes and drops.
+- **BT/WiFi coexistence NVRAM** — the stock NVRAM had no `btc_mode`/`btc_params`,
+  so Bluetooth lost every fight for the shared 2.4GHz antenna. The updated
+  `brcmfmac43430a0-sdio.txt` enables coex arbitration and sets `ccode=US`.
+
+---
+
 ## 📝 Notes & Troubleshooting
 
 - `nuvision-tablet-drivers.sh` must be run with `sudo` (it does **not** escalate privileges itself).

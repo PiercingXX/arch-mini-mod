@@ -16,7 +16,14 @@ xtalfreq=26000
 nocrc=1
 ag0=255
 aa2g=1
-ccode=CN
+ccode=US
+
+# BT/WiFi coexistence — the AP6212 shares one 2.4GHz antenna between WiFi
+# and Bluetooth; without these the firmware never arbitrates airtime and
+# Bluetooth audio/HID stutters whenever WiFi is active.
+btc_mode=1
+btc_params1=0x7530
+btc_params8=0x4e20
 
 pa0itssit=0x20
 extpagain2g=0
