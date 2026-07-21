@@ -70,6 +70,25 @@ Then reboot. This does three things:
 
 ---
 
+## 🔄 Screen Auto-Rotation
+
+The accelerometer (Kionix KIOX000A) mount matrix is installed by the main script
+via `/etc/udev/hwdb.d/61-sensor-local.hwdb`, and the FTSC1000 touchscreen works
+out of the box with `hid-multitouch` — on GNOME Wayland, touch input follows the
+screen rotation automatically. If the screen does not auto-rotate, GNOME's
+orientation lock is probably on. Turn it off (as your user, not root):
+
+```bash
+gsettings set org.gnome.settings-daemon.peripherals.touchscreen orientation-lock false
+```
+
+The panel is portrait-native (1200x1920), so the boot console and login screen
+render sideways until GNOME starts. To fix that too, add
+`video=DSI-1:panel_orientation=right_side_up` (or `left_side_up`, whichever
+matches your unit) to the `options` line in `/boot/loader/entries/*.conf`.
+
+---
+
 ## 📝 Notes & Troubleshooting
 
 - `nuvision-tablet-drivers.sh` must be run with `sudo` (it does **not** escalate privileges itself).
