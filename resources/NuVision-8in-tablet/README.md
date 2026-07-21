@@ -90,6 +90,27 @@ in landscape instead, add `video=DSI-1:panel_orientation=right_side_up` (or
 
 ---
 
+## 😴 WiFi Dead After Suspend Fix
+
+The BCM43430a0 fails to re-probe when waking from s2idle — `dmesg` shows
+`brcmf_ops_sdio_resume: Failed to probe device on resume` (err -110) and WiFi
+stays dead until reboot. This looks like "WiFi randomly drops" because it
+happens every time the tablet sleeps (e.g. a power-button press). Fix:
+
+```bash
+sudo ./fix-suspend-wifi.sh
+```
+
+This installs a systemd sleep hook that unloads `brcmfmac` before suspend and
+reloads it on wake, plus `wireless-regdb` and `iw`. No reboot needed.
+
+Note: suspend on this Cherry Trail platform is generally fragile (one suspend
+attempt crashed the kernel outright). If sleep keeps causing trouble, consider
+setting the power button to blank the screen instead of suspending:
+`gsettings set org.gnome.settings-daemon.plugins.power power-button-action nothing`
+
+---
+
 ## 🔆 Brightness / Night Light Fix
 
 If brightness control is flaky and GNOME night light misbehaves, check `dmesg`
