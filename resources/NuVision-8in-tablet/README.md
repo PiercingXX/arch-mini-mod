@@ -105,9 +105,17 @@ This installs a systemd sleep hook that unloads `brcmfmac` before suspend and
 reloads it on wake, plus `wireless-regdb` and `iw`. No reboot needed.
 
 Note: suspend on this Cherry Trail platform is generally fragile (one suspend
-attempt crashed the kernel outright). If sleep keeps causing trouble, consider
-setting the power button to blank the screen instead of suspending:
-`gsettings set org.gnome.settings-daemon.plugins.power power-button-action nothing`
+attempt crashed the kernel outright). The recommended setup is to disable
+suspend entirely:
+
+```bash
+# in-session triggers (run as your user, not root):
+gsettings set org.gnome.settings-daemon.plugins.power power-button-action nothing
+gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
+gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-type nothing
+# GDM login-screen idle suspend + mask systemd sleep targets:
+sudo ./fix-disable-suspend.sh
+```
 
 ---
 
