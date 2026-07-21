@@ -89,6 +89,21 @@ matches your unit) to the `options` line in `/boot/loader/entries/*.conf`.
 
 ---
 
+## 🔆 Brightness / Night Light Fix
+
+If brightness control is flaky and GNOME night light misbehaves, check `dmesg`
+for `i915 ... Failed to get the SoC PWM chip`. i915 loads from the initramfs
+but the Cherry Trail SoC PWM driver doesn't, so the DSI backlight probe fails
+and the system falls back to broken `acpi_video*` firmware backlights. Fix:
+
+```bash
+sudo ./fix-backlight.sh   # adds pwm-lpss + pwm-lpss-platform to initramfs
+```
+
+Reboot and confirm `/sys/class/backlight/intel_backlight` exists.
+
+---
+
 ## 📝 Notes & Troubleshooting
 
 - `nuvision-tablet-drivers.sh` must be run with `sudo` (it does **not** escalate privileges itself).
