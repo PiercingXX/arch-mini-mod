@@ -15,26 +15,19 @@ Enable WiFi, Bluetooth, and audio support for NuVision 8" tablets on Arch Linux 
 
 ## 🚀 Quick Install
 
-Run the main installer script as root:
+Run the main installer script as root, then reboot:
 
 ```bash
 sudo ./nuvision-tablet-drivers.sh
 ```
 
-Or, copy the files manually:
+This installs the firmware, audio, and touchscreen/sensor support **and applies
+every fix documented below** (WiFi stability, suspend disable, backlight,
+auto-rotation). The individual `fix-*.sh` scripts remain for applying a single
+fix to an already-installed system.
 
-```bash
-# WiFi/Bluetooth firmware
-sudo cp wifi-bluetooth-drivers/* /lib/firmware/
-
-# Audio drivers (if present)
-sudo cp audio-drivers/* /lib/firmware/
-
-# WiFi startup script and desktop entry
-sudo cp wifi-startup.sh /usr/local/bin/
-sudo chmod +x /usr/local/bin/wifi-startup.sh
-sudo cp wifi-startup.desktop /etc/xdg/autostart/
-```
+> `wifi-startup.sh` / `wifi-startup.desktop` are deprecated — they were a
+> login-time driver-reload hack that the WiFi fixes below make unnecessary.
 
 ---
 
